@@ -59,8 +59,7 @@ def get_significant_states(hass, start_time, end_time=None, entity_ids=None,
 
         states = (
             state for state in execute(query)
-            if (_is_significant(state) and
-                not state.attributes.get(ATTR_HIDDEN, False)))
+            if (_is_significant(state)))
 
     if _LOGGER.isEnabledFor(logging.DEBUG):
         elapsed = time.perf_counter() - timer_start
@@ -190,8 +189,7 @@ def get_states(hass, utc_point_in_time, entity_ids=None, run=None,
         if filters:
             query = filters.apply(query, entity_ids)
 
-        return [state for state in execute(query)
-                if not state.attributes.get(ATTR_HIDDEN, False)]
+        return [state for state in execute(query)]
 
 
 def states_to_json(
