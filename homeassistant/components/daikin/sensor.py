@@ -5,10 +5,10 @@ from homeassistant.const import CONF_ICON, CONF_NAME, CONF_TYPE
 from homeassistant.helpers.entity import Entity
 from homeassistant.util.unit_system import UnitSystem
 
-from . import DOMAIN as DAIKIN_DOMAIN
-from .const import (
+from custom_components.daikin import DOMAIN as DAIKIN_DOMAIN
+from custom_components.daikin.const import (
     ATTR_INSIDE_TEMPERATURE, ATTR_OUTSIDE_TEMPERATURE, SENSOR_TYPE_TEMPERATURE,
-    SENSOR_TYPES)
+    SENSOR_TYPES, ATTR_DAY_ENERGY, SENSOR_TYPE_ENERGY)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -29,6 +29,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
     sensors = [ATTR_INSIDE_TEMPERATURE]
     if daikin_api.device.support_outside_temperature:
         sensors.append(ATTR_OUTSIDE_TEMPERATURE)
+    if daikin_api.device.support_day_energy:
+        sensors.append(ATTR_DAY_ENERGY)
     async_add_entities([
         DaikinClimateSensor(daikin_api, sensor, hass.config.units)
         for sensor in sensors
@@ -51,6 +53,8 @@ class DaikinClimateSensor(Entity):
 
         if self._sensor[CONF_TYPE] == SENSOR_TYPE_TEMPERATURE:
             self._unit_of_measurement = units.temperature_unit
+        elif self._sensor[CONF_TYPE] == SENSOR_TYPE_ENERGY:
+            self._unit_of_measurement = "kWh"
 
     @property
     def unique_id(self):
@@ -67,6 +71,8 @@ class DaikinClimateSensor(Entity):
             cast_to_float = True
         elif key == ATTR_OUTSIDE_TEMPERATURE:
             value = self._api.device.values.get('otemp')
+        elif key == ATTR_DAY_ENERGY:
+            value = float(self._api.device.values.get('week_cool').split("/")[0])/10.0
 
         if value is None:
             _LOGGER.warning("Invalid value requested for key %s", key)

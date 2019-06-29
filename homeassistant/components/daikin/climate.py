@@ -15,8 +15,8 @@ from homeassistant.const import (
     ATTR_TEMPERATURE, CONF_HOST, CONF_NAME, STATE_OFF, TEMP_CELSIUS)
 import homeassistant.helpers.config_validation as cv
 
-from . import DOMAIN as DAIKIN_DOMAIN
-from .const import (
+from custom_components.daikin import DOMAIN as DAIKIN_DOMAIN
+from custom_components.daikin.const import (
     ATTR_INSIDE_TEMPERATURE, ATTR_OUTSIDE_TEMPERATURE, ATTR_TARGET_TEMPERATURE)
 
 _LOGGER = logging.getLogger(__name__)
@@ -76,7 +76,7 @@ class DaikinClimate(ClimateDevice):
 
     def __init__(self, api):
         """Initialize the climate device."""
-        from pydaikin import appliance
+        from custom_components.pydaikin import appliance
 
         self._api = api
         self._list = {
@@ -171,7 +171,7 @@ class DaikinClimate(ClimateDevice):
             # temperature
             elif attr == ATTR_TEMPERATURE:
                 try:
-                    values['stemp'] = str(int(value))
+                    values['stemp'] = str(float(value))
                 except ValueError:
                     _LOGGER.error("Invalid temperature %s", value)
 
@@ -211,7 +211,7 @@ class DaikinClimate(ClimateDevice):
     @property
     def target_temperature_step(self):
         """Return the supported step of target temperature."""
-        return 1
+        return 0.5
 
     async def async_set_temperature(self, **kwargs):
         """Set new target temperature."""
