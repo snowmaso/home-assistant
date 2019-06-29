@@ -15,10 +15,12 @@ CONF_BOUNCETIME = 'bouncetime'
 CONF_INVERT_LOGIC = 'invert_logic'
 CONF_PORTS = 'ports'
 CONF_PULL_MODE = 'pull_mode'
+CONF_SCAN_MODE = 'scan_mode'
 
 DEFAULT_BOUNCETIME = 50
 DEFAULT_INVERT_LOGIC = False
 DEFAULT_PULL_MODE = 'UP'
+DEFAULT_SCAN_MODE = 'edge_detect'
 
 _SENSORS_SCHEMA = vol.Schema({
     cv.positive_int: cv.string,
@@ -29,6 +31,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_BOUNCETIME, default=DEFAULT_BOUNCETIME): cv.positive_int,
     vol.Optional(CONF_INVERT_LOGIC, default=DEFAULT_INVERT_LOGIC): cv.boolean,
     vol.Optional(CONF_PULL_MODE, default=DEFAULT_PULL_MODE): cv.string,
+    vol.Optional(CONF_SCAN_MODE, default=DEFAULT_SCAN_MODE): cv.string,
 })
 
 
@@ -37,19 +40,20 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     pull_mode = config.get(CONF_PULL_MODE)
     bouncetime = config.get(CONF_BOUNCETIME)
     invert_logic = config.get(CONF_INVERT_LOGIC)
+    scan_mode = config.get(CONF_SCAN_MODE)
 
     binary_sensors = []
     ports = config.get('ports')
     for port_num, port_name in ports.items():
         binary_sensors.append(RPiGPIOBinarySensor(
-            port_name, port_num, pull_mode, bouncetime, invert_logic))
+            port_name, port_num, pull_mode, bouncetime, invert_logic, scan_mode))
     add_entities(binary_sensors, True)
 
 
 class RPiGPIOBinarySensor(BinarySensorDevice):
     """Represent a binary sensor that uses Raspberry Pi GPIO."""
 
-    def __init__(self, name, port, pull_mode, bouncetime, invert_logic):
+    def __init__(self, name, port, pull_mode, bouncetime, invert_logic, scan_mode):
         """Initialize the RPi binary sensor."""
         self._name = name or DEVICE_DEFAULT_NAME
         self._port = port
@@ -57,6 +61,7 @@ class RPiGPIOBinarySensor(BinarySensorDevice):
         self._bouncetime = bouncetime
         self._invert_logic = invert_logic
         self._state = None
+        self._scan_mode = scan_mode
 
         rpi_gpio.setup_input(self._port, self._pull_mode)
 
@@ -65,12 +70,13 @@ class RPiGPIOBinarySensor(BinarySensorDevice):
             self._state = rpi_gpio.read_input(self._port)
             self.schedule_update_ha_state()
 
-        rpi_gpio.edge_detect(self._port, read_gpio, self._bouncetime)
+        if "edge_detect" in self._scan_mode:
+            rpi_gpio.edge_detect(self._port, read_gpio, self._bouncetime)
 
     @property
     def should_poll(self):
         """No polling needed."""
-        return False
+        return "polling" in self._scan_mode
 
     @property
     def name(self):
