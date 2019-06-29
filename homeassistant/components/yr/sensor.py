@@ -30,8 +30,8 @@ SENSOR_TYPES = {
     'symbol': ['Symbol', None],
     'precipitation': ['Precipitation', 'mm'],
     'temperature': ['Temperature', '°C'],
-    'windSpeed': ['Wind speed', 'm/s'],
-    'windGust': ['Wind gust', 'm/s'],
+    'windSpeed': ['Wind speed', 'km/h'],
+    'windGust': ['Wind gust', 'km/h'],
     'pressure': ['Pressure', 'hPa'],
     'windDirection': ['Wind direction', '°'],
     'humidity': ['Humidity', '%'],
@@ -179,7 +179,7 @@ class YrData:
             return
 
         await self.updating_devices()
-        async_call_later(self.hass, 60*60, self.fetching_data)
+        async_call_later(self.hass, 10*60, self.fetching_data)
 
     async def updating_devices(self, *_):
         """Find the current data from self.data."""
@@ -232,7 +232,7 @@ class YrData:
                                       'dewpointTemperature'):
                         new_state = loc_data[dev.type]['@value']
                     elif dev.type in ('windSpeed', 'windGust'):
-                        new_state = loc_data[dev.type]['@mps']
+                        new_state = round(float(loc_data[dev.type]['@mps'])*3.6,1)
                     elif dev.type == 'windDirection':
                         new_state = float(loc_data[dev.type]['@deg'])
                     elif dev.type in ('fog', 'cloudiness', 'lowClouds',
