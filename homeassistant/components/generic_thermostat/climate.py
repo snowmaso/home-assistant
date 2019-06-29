@@ -31,6 +31,7 @@ CONF_SENSOR = 'target_sensor'
 CONF_MIN_TEMP = 'min_temp'
 CONF_MAX_TEMP = 'max_temp'
 CONF_TARGET_TEMP = 'target_temp'
+CONF_TARGET_TEMP_STEP = 'target_temp_step'
 CONF_AC_MODE = 'ac_mode'
 CONF_MIN_DUR = 'min_cycle_duration'
 CONF_COLD_TOLERANCE = 'cold_tolerance'
@@ -55,6 +56,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_HOT_TOLERANCE, default=DEFAULT_TOLERANCE): vol.Coerce(
         float),
     vol.Optional(CONF_TARGET_TEMP): vol.Coerce(float),
+    vol.Optional(CONF_TARGET_TEMP_STEP): vol.Coerce(float),
     vol.Optional(CONF_KEEP_ALIVE): vol.All(
         cv.time_period, cv.positive_timedelta),
     vol.Optional(CONF_INITIAL_OPERATION_MODE):
@@ -74,6 +76,7 @@ async def async_setup_platform(hass, config, async_add_entities,
     min_temp = config.get(CONF_MIN_TEMP)
     max_temp = config.get(CONF_MAX_TEMP)
     target_temp = config.get(CONF_TARGET_TEMP)
+    target_temp_step = config.get(CONF_TARGET_TEMP_STEP)
     ac_mode = config.get(CONF_AC_MODE)
     min_cycle_duration = config.get(CONF_MIN_DUR)
     cold_tolerance = config.get(CONF_COLD_TOLERANCE)
@@ -82,10 +85,11 @@ async def async_setup_platform(hass, config, async_add_entities,
     initial_operation_mode = config.get(CONF_INITIAL_OPERATION_MODE)
     away_temp = config.get(CONF_AWAY_TEMP)
     precision = config.get(CONF_PRECISION)
+    
 
     async_add_entities([GenericThermostat(
         hass, name, heater_entity_id, sensor_entity_id, min_temp, max_temp,
-        target_temp, ac_mode, min_cycle_duration, cold_tolerance,
+        target_temp, target_temp_step, ac_mode, min_cycle_duration, cold_tolerance,
         hot_tolerance, keep_alive, initial_operation_mode, away_temp,
         precision)])
 
@@ -94,7 +98,7 @@ class GenericThermostat(ClimateDevice, RestoreEntity):
     """Representation of a Generic Thermostat device."""
 
     def __init__(self, hass, name, heater_entity_id, sensor_entity_id,
-                 min_temp, max_temp, target_temp, ac_mode, min_cycle_duration,
+                 min_temp, max_temp, target_temp, target_temp_step, ac_mode, min_cycle_duration,
                  cold_tolerance, hot_tolerance, keep_alive,
                  initial_operation_mode, away_temp, precision):
         """Initialize the thermostat."""
@@ -127,6 +131,7 @@ class GenericThermostat(ClimateDevice, RestoreEntity):
         self._min_temp = min_temp
         self._max_temp = max_temp
         self._target_temp = target_temp
+        self._target_temp_step = target_temp_step
         self._unit = hass.config.units.temperature_unit
         self._support_flags = SUPPORT_FLAGS
         if away_temp is not None:
@@ -410,3 +415,8 @@ class GenericThermostat(ClimateDevice, RestoreEntity):
         self._target_temp = self._saved_target_temp
         await self._async_control_heating(force=True)
         await self.async_update_ha_state()
+
+    @property
+    def target_temperature_step(self):
+        """Return the supported step of target temperature."""
+        return self._target_temp_step
