@@ -225,6 +225,11 @@ class Appliance(entity.Entity):
         """Return True if the device is not an AirBase unit."""
         return not self._airbase
 
+    @property
+    def support_day_energy(self):
+        """Return True if the device is not an AirBase unit."""
+        return not self._airbase
+
     async def get_resource(self, resource, retries=3):
         """Update resource."""
         try:
