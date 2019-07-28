@@ -130,8 +130,13 @@ class OpenThermClimate(ClimateDevice):
 
     @property
     def hvac_mode(self):
-        """Return current operation ie. heat, cool, idle."""
+        """Return current HVAC mode."""
         return self._current_operation
+
+    @property
+    def hvac_modes(self):
+        """Return available HVAC modes."""
+        return []
 
     @property
     def current_temperature(self):
@@ -165,7 +170,7 @@ class OpenThermClimate(ClimateDevice):
     @property
     def preset_modes(self):
         """Available preset modes to set."""
-        return [PRESET_AWAY]
+        return []
 
     def set_preset_mode(self, preset_mode):
         """Set the preset mode."""

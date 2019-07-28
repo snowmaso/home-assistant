@@ -6,6 +6,9 @@ ATTR_INSIDE_TEMPERATURE = 'inside_temperature'
 ATTR_OUTSIDE_TEMPERATURE = 'outside_temperature'
 ATTR_DAY_ENERGY = 'day_energy'
 
+ATTR_STATE_ON = 'on'
+ATTR_STATE_OFF = 'off'
+
 SENSOR_TYPE_TEMPERATURE = 'temperature'
 SENSOR_TYPE_ENERGY = 'energy'
 
