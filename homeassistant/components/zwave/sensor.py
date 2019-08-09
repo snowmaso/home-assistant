@@ -55,6 +55,8 @@ class ZWaveSensor(ZWaveDeviceEntity):
         value = self.values.primary
         if value.is_set:
             self._state = value.data
+        else:
+            self._state = None
         self._units = value.units
 
     @property

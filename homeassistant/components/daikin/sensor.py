@@ -66,8 +66,6 @@ class DaikinClimateSensor(Entity):
         """Return a unique ID."""
         return "{}-{}".format(self._api.mac, self._device_attribute)
 
-        elif key == ATTR_DAY_ENERGY:
-            value = float(self._api.device.values.get('week_cool').split("/")[0])/10.0
     @property
     def icon(self):
         """Icon to use in the frontend, if any."""
@@ -85,6 +83,8 @@ class DaikinClimateSensor(Entity):
             return self._api.device.inside_temperature
         if self._device_attribute == ATTR_OUTSIDE_TEMPERATURE:
             return self._api.device.outside_temperature
+        if self._device_attribute == ATTR_DAY_ENERGY:
+            return float(self._api.device.values.get('week_cool').split("/")[0])/10.0
         return None
 
     @property

@@ -27,6 +27,7 @@ SENSOR_TYPES = {
         CONF_NAME: 'Day Energy',
         CONF_ICON: 'mdi:power-plug',
         CONF_TYPE: SENSOR_TYPE_ENERGY
+    }
 }
 
 KEY_MAC = "mac"
