@@ -4,35 +4,34 @@ import logging
 import voluptuous as vol
 
 from homeassistant.components import rpi_gpio
-from homeassistant.components.binary_sensor import (
-    BinarySensorDevice, PLATFORM_SCHEMA)
+from homeassistant.components.binary_sensor import BinarySensorDevice, PLATFORM_SCHEMA
 from homeassistant.const import DEVICE_DEFAULT_NAME
 import homeassistant.helpers.config_validation as cv
 
 _LOGGER = logging.getLogger(__name__)
 
-CONF_BOUNCETIME = 'bouncetime'
-CONF_INVERT_LOGIC = 'invert_logic'
-CONF_PORTS = 'ports'
-CONF_PULL_MODE = 'pull_mode'
+CONF_BOUNCETIME = "bouncetime"
+CONF_INVERT_LOGIC = "invert_logic"
+CONF_PORTS = "ports"
+CONF_PULL_MODE = "pull_mode"
 CONF_SCAN_MODE = 'scan_mode'
 
 DEFAULT_BOUNCETIME = 50
 DEFAULT_INVERT_LOGIC = False
-DEFAULT_PULL_MODE = 'UP'
+DEFAULT_PULL_MODE = "UP"
 DEFAULT_SCAN_MODE = 'edge_detect'
 
-_SENSORS_SCHEMA = vol.Schema({
-    cv.positive_int: cv.string,
-})
+_SENSORS_SCHEMA = vol.Schema({cv.positive_int: cv.string})
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Required(CONF_PORTS): _SENSORS_SCHEMA,
-    vol.Optional(CONF_BOUNCETIME, default=DEFAULT_BOUNCETIME): cv.positive_int,
-    vol.Optional(CONF_INVERT_LOGIC, default=DEFAULT_INVERT_LOGIC): cv.boolean,
-    vol.Optional(CONF_PULL_MODE, default=DEFAULT_PULL_MODE): cv.string,
-    vol.Optional(CONF_SCAN_MODE, default=DEFAULT_SCAN_MODE): cv.string,
-})
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+    {
+        vol.Required(CONF_PORTS): _SENSORS_SCHEMA,
+        vol.Optional(CONF_BOUNCETIME, default=DEFAULT_BOUNCETIME): cv.positive_int,
+        vol.Optional(CONF_INVERT_LOGIC, default=DEFAULT_INVERT_LOGIC): cv.boolean,
+        vol.Optional(CONF_PULL_MODE, default=DEFAULT_PULL_MODE): cv.string,
+        vol.Optional(CONF_SCAN_MODE, default=DEFAULT_SCAN_MODE): cv.string,
+    }
+)
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
@@ -43,10 +42,13 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     scan_mode = config.get(CONF_SCAN_MODE)
 
     binary_sensors = []
-    ports = config.get('ports')
+    ports = config.get("ports")
     for port_num, port_name in ports.items():
-        binary_sensors.append(RPiGPIOBinarySensor(
-            port_name, port_num, pull_mode, bouncetime, invert_logic, scan_mode))
+        binary_sensors.append(
+            RPiGPIOBinarySensor(
+                port_name, port_num, pull_mode, bouncetime, invert_logic, scan_mode
+            )
+        )
     add_entities(binary_sensors, True)
 
 

@@ -7,14 +7,18 @@ from homeassistant.util.unit_system import UnitSystem
 
 from custom_components.daikin import DOMAIN as DAIKIN_DOMAIN
 from custom_components.daikin.const import (
-    ATTR_INSIDE_TEMPERATURE, ATTR_OUTSIDE_TEMPERATURE, SENSOR_TYPE_TEMPERATURE,
-    SENSOR_TYPES, ATTR_DAY_ENERGY, SENSOR_TYPE_ENERGY)
+    ATTR_INSIDE_TEMPERATURE,
+    ATTR_OUTSIDE_TEMPERATURE,
+    SENSOR_TYPE_TEMPERATURE,
+    SENSOR_TYPES,
+    ATTR_DAY_ENERGY,
+    SENSOR_TYPE_ENERGY
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_platform(
-        hass, config, async_add_entities, discovery_info=None):
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Old way of setting up the Daikin sensors.
 
     Can only be called when a user accidentally mentions the platform in their
@@ -31,17 +35,18 @@ async def async_setup_entry(hass, entry, async_add_entities):
         sensors.append(ATTR_OUTSIDE_TEMPERATURE)
     if daikin_api.device.support_day_energy:
         sensors.append(ATTR_DAY_ENERGY)
-    async_add_entities([
-        DaikinClimateSensor(daikin_api, sensor, hass.config.units)
-        for sensor in sensors
-    ])
+    async_add_entities(
+        [
+            DaikinClimateSensor(daikin_api, sensor, hass.config.units)
+            for sensor in sensors
+        ]
+    )
 
 
 class DaikinClimateSensor(Entity):
     """Representation of a Sensor."""
 
-    def __init__(self, api, monitored_state, units: UnitSystem,
-                 name=None) -> None:
+    def __init__(self, api, monitored_state, units: UnitSystem, name=None) -> None:
         """Initialize the sensor."""
         self._api = api
         self._sensor = SENSOR_TYPES.get(monitored_state)
@@ -61,32 +66,8 @@ class DaikinClimateSensor(Entity):
         """Return a unique ID."""
         return "{}-{}".format(self._api.mac, self._device_attribute)
 
-    def get(self, key):
-        """Retrieve device settings from API library cache."""
-        value = None
-        cast_to_float = False
-
-        if key == ATTR_INSIDE_TEMPERATURE:
-            value = self._api.device.values.get('htemp')
-            cast_to_float = True
-        elif key == ATTR_OUTSIDE_TEMPERATURE:
-            value = self._api.device.values.get('otemp')
         elif key == ATTR_DAY_ENERGY:
             value = float(self._api.device.values.get('week_cool').split("/")[0])/10.0
-
-        if value is None:
-            _LOGGER.warning("Invalid value requested for key %s", key)
-        else:
-            if value in ("-", "--"):
-                value = None
-            elif cast_to_float:
-                try:
-                    value = float(value)
-                except ValueError:
-                    value = None
-
-        return value
-
     @property
     def icon(self):
         """Icon to use in the frontend, if any."""
@@ -100,7 +81,11 @@ class DaikinClimateSensor(Entity):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self.get(self._device_attribute)
+        if self._device_attribute == ATTR_INSIDE_TEMPERATURE:
+            return self._api.device.inside_temperature
+        if self._device_attribute == ATTR_OUTSIDE_TEMPERATURE:
+            return self._api.device.outside_temperature
+        return None
 
     @property
     def unit_of_measurement(self):
