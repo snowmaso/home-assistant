@@ -223,7 +223,7 @@ class Appliance(entity.Entity):
     @property
     def support_outside_temperature(self):
         """Return True if the device is not an AirBase unit."""
-        return not self._airbase
+        return not (self._airbase and not self.outside_temperature)
 
     @property
     def support_day_energy(self):
@@ -379,3 +379,25 @@ class Appliance(entity.Entity):
 
         _LOGGER.debug("Set zone:: %s", query)
         await self.get_resource(query)
+
+    def _temperature(self, dimension):
+        """Parse temperature."""
+        try:
+            return float(self.values.get(dimension))
+        except ValueError:
+            return
+
+    @property
+    def outside_temperature(self):
+        """Return current outside temperature."""
+        return self._temperature('otemp')
+
+    @property
+    def inside_temperature(self):
+        """Return current inside temperature."""
+        return self._temperature('htemp')
+
+    @property
+    def target_temperature(self):
+        """Return current target temperature."""
+        return self._temperature('stemp')
