@@ -5,6 +5,7 @@ import logging
 
 from aiohttp import ClientConnectionError
 from async_timeout import timeout
+from custom_components.pydaikin.appliance import Appliance
 import voluptuous as vol
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
@@ -15,7 +16,7 @@ from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.helpers.typing import HomeAssistantType
 from homeassistant.util import Throttle
 
-from . import config_flow  # noqa  pylint_disable=unused-import
+from custom_components.daikin import config_flow  # noqa: F401
 
 _LOGGER = logging.getLogger(__name__)
 

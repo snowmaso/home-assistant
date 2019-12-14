@@ -1,6 +1,7 @@
 """Support for the Daikin HVAC."""
 import logging
 
+from custom_components.pydaikin import appliance
 import voluptuous as vol
 
 from homeassistant.components.climate import PLATFORM_SCHEMA, ClimateDevice
