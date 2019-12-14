@@ -10,7 +10,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST
 
-from custom_components.daikin.const import KEY_IP, KEY_MAC
+from .const import KEY_IP, KEY_MAC
 
 _LOGGER = logging.getLogger(__name__)
 

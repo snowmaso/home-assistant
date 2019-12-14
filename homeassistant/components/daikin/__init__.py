@@ -16,7 +16,7 @@ from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.helpers.typing import HomeAssistantType
 from homeassistant.util import Throttle
 
-from custom_components.daikin import config_flow  # noqa: F401
+from . import config_flow  # noqa: F401
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -88,7 +88,6 @@ async def async_unload_entry(hass, config_entry):
 
 async def daikin_api_setup(hass, host):
     """Create a Daikin instance only once."""
-    from custom_components.pydaikin.appliance import Appliance
 
     session = hass.helpers.aiohttp_client.async_get_clientsession()
     try:

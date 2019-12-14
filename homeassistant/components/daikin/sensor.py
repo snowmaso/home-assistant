@@ -5,8 +5,8 @@ from homeassistant.const import CONF_ICON, CONF_NAME, CONF_TYPE
 from homeassistant.helpers.entity import Entity
 from homeassistant.util.unit_system import UnitSystem
 
-from custom_components.daikin import DOMAIN as DAIKIN_DOMAIN
-from custom_components.daikin.const import (
+from . import DOMAIN as DAIKIN_DOMAIN
+from .const import (
     ATTR_INSIDE_TEMPERATURE,
     ATTR_OUTSIDE_TEMPERATURE,
     SENSOR_TYPE_TEMPERATURE,

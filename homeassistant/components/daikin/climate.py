@@ -26,8 +26,8 @@ from homeassistant.components.climate.const import (
 from homeassistant.const import ATTR_TEMPERATURE, CONF_HOST, CONF_NAME, TEMP_CELSIUS
 import homeassistant.helpers.config_validation as cv
 
-from custom_components.daikin import DOMAIN as DAIKIN_DOMAIN
-from custom_components.daikin.const import (
+from . import DOMAIN as DAIKIN_DOMAIN
+from .const import (
     ATTR_INSIDE_TEMPERATURE,
     ATTR_OUTSIDE_TEMPERATURE,
     ATTR_STATE_OFF,
@@ -92,7 +92,6 @@ class DaikinClimate(ClimateDevice):
 
     def __init__(self, api):
         """Initialize the climate device."""
-        from custom_components.pydaikin import appliance
 
         self._api = api
         self._list = {

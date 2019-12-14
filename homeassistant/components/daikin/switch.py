@@ -3,7 +3,7 @@ import logging
 
 from homeassistant.helpers.entity import ToggleEntity
 
-from custom_components.daikin import DOMAIN as DAIKIN_DOMAIN
+from . import DOMAIN as DAIKIN_DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
