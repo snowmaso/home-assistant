@@ -55,8 +55,9 @@ class ZWaveSensor(ZWaveDeviceEntity):
     def update_properties(self):
         """Handle the data changes for node values."""
         value = self.values.primary
-        if value.is_set:
-            self._state = value.data
+        if value.is_set:                                                # if value is read from device
+            if value.units not in ("kWh", "kVAh") or value.data > 0:    # and not 'zero' for energy counters
+                self._state = value.data            
         else:
             self._state = None
         self._units = value.units
