@@ -1,1 +1,1 @@
-from pydaikin 1.6.1
+from pydaikin 1.6.2

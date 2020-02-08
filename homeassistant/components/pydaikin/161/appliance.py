@@ -22,20 +22,18 @@ HTTP_RESOURCES = [
     'common/get_notify',
     'aircon/get_week_power',
     'aircon/get_year_power',
-    'aircon/get_week_power_ex',
 ]
 
 AIRBASE_RESOURCES = [
     'common/basic_info',
     'aircon/get_control_info',
     'aircon/get_model_info',
-    'aircon/get_zone_setting',
+    'aircon/get_zone_setting'
 ]
 
 INFO_RESOURCES = [
     'aircon/get_sensor_info',
     'aircon/get_control_info',
-    'aircon/get_week_power_ex',
 ]
 
 VALUES_SUMMARY = [
@@ -86,15 +84,40 @@ TRANSLATIONS = {
         '6': '4',
         '7': '5',
     },
-    'f_dir': {'0': 'off', '1': 'vertical', '2': 'horizontal', '3': '3d',},
-    'en_hol': {'0': 'off', '1': 'on',},
+    'f_dir': {
+        '0': 'off',
+        '1': 'vertical',
+        '2': 'horizontal',
+        '3': '3d',
+    },
+    'en_hol': {
+        '0': 'off',
+        '1': 'on',
+    },
 }
 
 TRANSLATIONS_AIRBASE = {
-    'mode': {'0': 'fan', '1': 'hot', '2': 'cool', '3': 'auto', '7': 'dry',},
-    'f_rate': {'1': 'low', '3': 'mid', '5': 'high',},
-    'f_dir': {'0': 'off', '1': 'vertical', '2': 'horizontal', '3': '3d',},
-    'en_hol': {'0': 'off', '1': 'on',},
+    'mode': {
+        '0': 'fan',
+        '1': 'hot',
+        '2': 'cool',
+        '7': 'dry',
+    },
+    'f_rate': {
+        '1': 'low',
+        '3': 'mid',
+        '5': 'high',
+    },
+    'f_dir': {
+        '0': 'off',
+        '1': 'vertical',
+        '2': 'horizontal',
+        '3': '3d',
+    },
+    'en_hol': {
+        '0': 'off',
+        '1': 'on',
+    },
 }
 
 
@@ -114,7 +137,9 @@ def human_to_daikin(dimension, value, airbase=False):
     else:
         translations = TRANSLATIONS
     translations_rev = {
-        dim: {v: k for k, v in item.items()} for dim, item in translations.items()
+        dim: {v: k
+              for k, v in item.items()}
+        for dim, item in translations.items()
     }
     return translations_rev.get(dimension, {}).get(value, value)
 
@@ -198,11 +223,6 @@ class Appliance(entity.Entity):
         """Return True if the device is not an AirBase unit."""
         return not (self._airbase and not self.outside_temperature)
 
-    @property
-    def support_day_energy(self):
-        """Return True if the device is not an AirBase unit."""
-        return not self._airbase
-
     async def get_resource(self, resource, retries=3):
         """Update resource."""
         try:
@@ -221,7 +241,8 @@ class Appliance(entity.Entity):
         """Make the http request."""
         if self._airbase:
             resource = 'skyfi/%s' % resource
-        async with self.session.get('http://%s/%s' % (self.ip, resource)) as resp:
+        async with self.session.get(
+                'http://%s/%s' % (self.ip, resource)) as resp:
             if resp.status == 200:
                 return self.parse_response(await resp.text())
             return {}
@@ -246,12 +267,11 @@ class Appliance(entity.Entity):
 
     def translate_mac(self, value):
         """Return translated MAC address."""
-        return ':'.join(value[i : i + 2] for i in range(0, len(value), 2))
+        return ':'.join(value[i:i + 2] for i in range(0, len(value), 2))
 
     def represent(self, key):
         """Return translated value from key."""
         from urllib.parse import unquote
-
         # adapt the key
         k = VALUES_TRANSLATION.get(key, key)
 
@@ -277,9 +297,10 @@ class Appliance(entity.Entity):
 
         # Merge current_val with mapped settings
         self.values.update(current_val)
-        self.values.update(
-            {k: human_to_daikin(k, v, self._airbase) for k, v in settings.items()}
-        )
+        self.values.update({
+            k: human_to_daikin(k, v, self._airbase)
+            for k, v in settings.items()
+        })
 
         # we are using an extra mode "off" to power off the unit
         if settings.get('mode', '') == 'off':
@@ -296,12 +317,14 @@ class Appliance(entity.Entity):
                 if key in current_val:
                     self.values[k] = current_val[key]
 
-        query_c = 'aircon/set_control_info?pow=%s&mode=%s&stemp=%s&shum=%s' % (
-            self.values['pow'],
-            self.values['mode'],
-            self.values['stemp'],
-            self.values['shum'],
-        )
+        query_c = \
+            'aircon/set_control_info?pow=%s&mode=%s&stemp=%s&shum=%s' % \
+            (
+                self.values['pow'],
+                self.values['mode'],
+                self.values['stemp'],
+                self.values['shum'],
+            )
 
         # Apparently some remote controllers doesn't support f_rate and f_dir
         if self.support_fan_rate:
@@ -330,15 +353,12 @@ class Appliance(entity.Entity):
         if not self.values.get('zone_name'):
             return
         zone_onoff = self.represent('zone_onoff')[1]
-        return [
-            (name.strip(' +,'), zone_onoff[i])
-            for i, name in enumerate(self.represent('zone_name')[1])
-        ]
+        return [(name.strip(' +,'), zone_onoff[i])
+                for i, name in enumerate(self.represent('zone_name')[1])]
 
     async def set_zone(self, zone_id, status):
         """Set zone status."""
         from urllib.parse import quote
-
         current_state = await self.get_resource('aircon/get_zone_setting')
         self.values.update(current_state)
         zone_onoff = self.represent('zone_onoff')[1]
@@ -346,7 +366,8 @@ class Appliance(entity.Entity):
         self.values['zone_onoff'] = quote(';'.join(zone_onoff)).lower()
 
         query = 'aircon/set_zone_setting?zone_name={}&zone_onoff={}'.format(
-            current_state['zone_name'], self.values['zone_onoff'],
+            current_state['zone_name'],
+            self.values['zone_onoff'],
         )
 
         _LOGGER.debug("Set zone:: %s", query)

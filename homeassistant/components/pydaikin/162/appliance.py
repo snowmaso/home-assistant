@@ -22,7 +22,6 @@ HTTP_RESOURCES = [
     'common/get_notify',
     'aircon/get_week_power',
     'aircon/get_year_power',
-    'aircon/get_week_power_ex',
 ]
 
 AIRBASE_RESOURCES = [
@@ -35,7 +34,6 @@ AIRBASE_RESOURCES = [
 INFO_RESOURCES = [
     'aircon/get_sensor_info',
     'aircon/get_control_info',
-    'aircon/get_week_power_ex',
 ]
 
 VALUES_SUMMARY = [
@@ -197,11 +195,6 @@ class Appliance(entity.Entity):
     def support_outside_temperature(self):
         """Return True if the device is not an AirBase unit."""
         return not (self._airbase and not self.outside_temperature)
-
-    @property
-    def support_day_energy(self):
-        """Return True if the device is not an AirBase unit."""
-        return not self._airbase
 
     async def get_resource(self, resource, retries=3):
         """Update resource."""
