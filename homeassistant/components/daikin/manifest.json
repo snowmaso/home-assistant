@@ -4,7 +4,6 @@
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/daikin",
   "requirements": [],
-  "dependencies": [],
-  "codeowners": ["@fredrike", "@rofrantz"],
+  "codeowners": ["@fredrike"],
   "quality_scale": "platinum"
 }

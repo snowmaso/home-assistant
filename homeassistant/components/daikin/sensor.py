@@ -1,19 +1,13 @@
 """Support for Daikin AC sensors."""
 import logging
 
-from homeassistant.const import CONF_ICON, CONF_NAME, CONF_TYPE
+from homeassistant.const import CONF_ICON, CONF_NAME, TEMP_CELSIUS
 from homeassistant.helpers.entity import Entity
-from homeassistant.util.unit_system import UnitSystem
 
 from . import DOMAIN as DAIKIN_DOMAIN
-from .const import (
-    ATTR_INSIDE_TEMPERATURE,
-    ATTR_OUTSIDE_TEMPERATURE,
-    SENSOR_TYPE_TEMPERATURE,
-    SENSOR_TYPES,
+from .const import ATTR_INSIDE_TEMPERATURE, ATTR_OUTSIDE_TEMPERATURE, SENSOR_TYPES
     ATTR_DAY_ENERGY,
     SENSOR_TYPE_ENERGY
-)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,7 +18,6 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     Can only be called when a user accidentally mentions the platform in their
     config. But even in that case it would have been ignored.
     """
-    pass
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -35,32 +28,20 @@ async def async_setup_entry(hass, entry, async_add_entities):
         sensors.append(ATTR_OUTSIDE_TEMPERATURE)
     if daikin_api.device.support_day_energy:
         sensors.append(ATTR_DAY_ENERGY)
-    async_add_entities(
-        [
-            DaikinClimateSensor(daikin_api, sensor, hass.config.units)
-            for sensor in sensors
-        ]
-    )
-
+    async_add_entities([DaikinClimateSensor(daikin_api, sensor) for sensor in sensors])
 
 class DaikinClimateSensor(Entity):
     """Representation of a Sensor."""
 
-    def __init__(self, api, monitored_state, units: UnitSystem, name=None) -> None:
+    def __init__(self, api, monitored_state) -> None:
         """Initialize the sensor."""
         self._api = api
-        self._sensor = SENSOR_TYPES.get(monitored_state)
-        if name is None:
-            name = f"{self._sensor[CONF_NAME]} {api.name}"
-
-        self._name = f"{name} {monitored_state.replace('_', ' ')}"
+        self._sensor = SENSOR_TYPES[monitored_state]
+        self._name = f"{api.name} {self._sensor[CONF_NAME]}"
         self._device_attribute = monitored_state
 
-        if self._sensor[CONF_TYPE] == SENSOR_TYPE_TEMPERATURE:
-            self._unit_of_measurement = units.temperature_unit
         elif self._sensor[CONF_TYPE] == SENSOR_TYPE_ENERGY:
             self._unit_of_measurement = "kWh"
-
     @property
     def unique_id(self):
         """Return a unique ID."""
@@ -90,7 +71,7 @@ class DaikinClimateSensor(Entity):
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
-        return self._unit_of_measurement
+        return TEMP_CELSIUS
 
     async def async_update(self):
         """Retrieve latest state."""

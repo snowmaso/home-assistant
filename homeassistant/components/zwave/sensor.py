@@ -110,8 +110,6 @@ class ZWaveAlarmSensor(ZWaveSensor):
     COMMAND_CLASS_ALARM is what we get here.
     """
 
-    pass
-
 
 class ZWaveBatterySensor(ZWaveSensor):
     """Representation of Z-Wave device battery level."""
